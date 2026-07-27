@@ -216,6 +216,12 @@ hr.div{border:none;border-top:1.5px solid #f0c0c5;margin:16px 0}
 .grade-section-title{font-weight:800;font-size:.82rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
 .grade-item{padding:6px 10px;background:#fff5f5;border-radius:8px;font-size:.85rem;margin-bottom:4px;border-left:3px solid var(--accent);line-height:1.5}
 .grade-item.ok{background:#f0fdf4;border-left-color:#059669;color:#065f46}
+.grade-markdown{text-align:left}
+.grade-h1{font-weight:800;font-size:1rem;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin:18px 0 8px;padding-top:12px;border-top:1px dashed var(--border)}
+.grade-h1:first-child{margin-top:0;padding-top:0;border-top:none}
+.grade-h2{font-weight:800;font-size:.88rem;color:var(--text);margin:10px 0 4px}
+.grade-list{margin:0 0 6px;padding-left:20px}
+.grade-list li{font-size:.85rem;line-height:1.6;color:var(--text);margin-bottom:3px}
 /* ADMIN */
 .admin-login{max-width:400px;margin:40px auto;background:#fff;border:1.5px solid var(--border);border-radius:20px;padding:40px;text-align:center;box-shadow:0 8px 40px rgba(230,57,70,.12)}
 .admin-login h2{font-family:'Bebas Neue';font-size:2rem;color:var(--accent);margin-bottom:8px;letter-spacing:2px}
@@ -422,6 +428,75 @@ hr.div{border:none;border-top:1.5px solid #f0c0c5;margin:16px 0}
         <button class="btn btn-gold"      onclick="nextQ()">🎲 Câu Hỏi Mới</button>
         <button class="btn btn-secondary" onclick="nextQSame()">🔁 Cùng Chủ Đề</button>
         <button class="btn btn-primary"   onclick="switchTab(1)">🎡 Vòng Quay</button>
+      </div>
+    </div>
+    <!-- PART 2 INTRO PHRASES -->
+    <div class="card" id="p2IntroCard" style="display:none">
+      <div class="card-title">💡 Mẫu Mở Đầu Part 2 (Cue Card)</div>
+      <div class="cue-hints" style="margin-bottom:14px">
+        <div class="cue-hints-label">1. Mẫu phổ biến nhất</div>
+        <div class="cue-hint-item">I'd like to talk about...</div>
+        <div class="cue-hint-item">I'm going to talk about...</div>
+        <div class="cue-hint-item">Today, I'd like to tell you about...</div>
+        <div class="cue-hint-item">The person/place/event I'd like to talk about is...</div>
+        <div style="font-size:.82rem;color:var(--text-dim);margin-top:6px;font-style:italic">VD: I'd like to talk about a positive change in my life.</div>
+      </div>
+      <div class="cue-hints" style="margin-bottom:14px">
+        <div class="cue-hints-label">2. Tự nhiên hơn (Band 6.5–7.5)</div>
+        <div class="cue-hint-item">The first thing that comes to my mind is...</div>
+        <div class="cue-hint-item">One thing I'd really like to talk about is...</div>
+        <div class="cue-hint-item">A good example that I can think of is...</div>
+        <div class="cue-hint-item">One memorable... that I'd like to share is...</div>
+        <div style="font-size:.82rem;color:var(--text-dim);margin-top:6px;font-style:italic">VD: The first thing that comes to my mind is my first trip to Da Nang.</div>
+      </div>
+      <div class="cue-hints" style="margin-bottom:14px">
+        <div class="cue-hints-label">3. Khi cần thêm thời gian suy nghĩ</div>
+        <div class="cue-hint-item">Well, that's an interesting question.</div>
+        <div class="cue-hint-item">Let me think for a moment.</div>
+        <div class="cue-hint-item">There are quite a few..., but I'd like to talk about...</div>
+        <div class="cue-hint-item">Among all the..., the one I'd like to describe is...</div>
+        <div style="font-size:.82rem;color:var(--text-dim);margin-top:6px;font-style:italic">VD: Well, that's an interesting question. There are quite a few people I admire, but I'd like to talk about my English teacher.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+        <div class="cue-hints" style="margin-bottom:0">
+          <div class="cue-hints-label">4. Khi nói về người</div>
+          <div class="cue-hint-item">The person I'd like to talk about is...</div>
+          <div class="cue-hint-item">Someone who has had a great influence on me is...</div>
+          <div class="cue-hint-item">One person I really admire is...</div>
+        </div>
+        <div class="cue-hints" style="margin-bottom:0">
+          <div class="cue-hints-label">5. Khi nói về địa điểm</div>
+          <div class="cue-hint-item">The place I'd like to describe is...</div>
+          <div class="cue-hint-item">One place I really enjoy visiting is...</div>
+          <div class="cue-hint-item">The place that immediately comes to my mind is...</div>
+        </div>
+        <div class="cue-hints" style="margin-bottom:0">
+          <div class="cue-hints-label">6. Khi nói về đồ vật</div>
+          <div class="cue-hint-item">The item I'd like to talk about is...</div>
+          <div class="cue-hint-item">One thing that is very important to me is...</div>
+          <div class="cue-hint-item">The object I'd like to describe is...</div>
+        </div>
+        <div class="cue-hints" style="margin-bottom:0">
+          <div class="cue-hints-label">7. Khi nói về trải nghiệm/sự kiện</div>
+          <div class="cue-hint-item">The experience I'd like to share is...</div>
+          <div class="cue-hint-item">One memorable event in my life was...</div>
+          <div class="cue-hint-item">I'd like to tell you about an experience that I still remember clearly.</div>
+        </div>
+      </div>
+      <div class="cue-hints" style="margin-bottom:14px">
+        <div class="cue-hints-label">8. Mẫu nối sang phần mô tả</div>
+        <div class="cue-hint-item">It happened when...</div>
+        <div class="cue-hint-item">I first...</div>
+        <div class="cue-hint-item">I got/bought/visited it when...</div>
+        <div class="cue-hint-item">I met him/her when...</div>
+        <div class="cue-hint-item">I've had it for...</div>
+        <div class="cue-hint-item">Since then,...</div>
+      </div>
+      <div class="cue-hints" style="margin-bottom:0;border-left-color:var(--gold);background:#fffbea">
+        <div class="cue-hints-label" style="color:var(--gold)">⭐ Mẫu mở đầu "ăn điểm" cho hầu hết các đề</div>
+        <div class="cue-hint-item" style="padding:4px 0">I'd like to talk about..., which is something I remember very clearly.</div>
+        <div class="cue-hint-item" style="padding:4px 0">The first thing that comes to my mind is..., because it had a big impact on me.</div>
+        <div class="cue-hint-item" style="padding:4px 0">There are quite a few..., but the one I'd like to describe today is...</div>
       </div>
     </div>
     <!-- RECORDING -->
@@ -1187,6 +1262,7 @@ function applyDataset(key){
   buildTopics();updateStats();
   buildAQ(currentAQPart);
   updateAdminStats();populateAdminSelects();
+  nextQ();
   notify('Đã chuyển sang '+QDB_SETS[key].label);
 }
 createStars();
@@ -1223,11 +1299,11 @@ function setPart(p){
   currentPart=p;
   [1,2,3].forEach(i=>{const b=document.getElementById('pBtn'+i);b.classList.toggle('active',i===p);b.classList.toggle('p2',i===2);b.classList.toggle('p3',i===3)});
   document.getElementById('qPartBadge').textContent='IELTS SPEAKING PART '+p;
-  document.getElementById('qText').textContent='Nhấn "Câu Hỏi Mới" để bắt đầu!';
   const cue=document.getElementById('qCue');cue.style.display='none';
-  document.getElementById('qTopic').textContent='🎯 Chủ đề ngẫu nhiên';
+  document.getElementById('p2IntroCard').style.display=p===2?'block':'none';
   curTopicFilters.clear();buildTopics();updateStats();
   buildTimerLimitRow(p);timerReset();
+  nextQ();
 }
 function buildTimerLimitRow(p){
   const cfg=TIMER_CONFIGS[p];
@@ -1441,6 +1517,30 @@ function cleanAiJsonText(raw){
 function aiErrorHtml(err){
   return '<div style="color:#e63946;padding:16px">⚠️ Lỗi gọi AI: '+((err&&err.message)||'không xác định')+'</div>';
 }
+function mdToHtml(md){
+  const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const inline=s=>esc(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  const lines=(md||'').replace(/\r/g,'').split('\n');
+  let html='',inList=false;
+  const closeList=()=>{if(inList){html+='</ul>';inList=false;}};
+  for(let raw of lines){
+    const line=raw.trim();
+    if(!line){closeList();continue;}
+    let m;
+    if((m=line.match(/^#\s+(.*)/))){closeList();html+='<div class="grade-h1">'+inline(m[1])+'</div>';continue;}
+    if((m=line.match(/^#{2,6}\s+(.*)/))){closeList();html+='<div class="grade-h2">'+inline(m[1])+'</div>';continue;}
+    if(/^-{3,}$/.test(line)){closeList();continue;}
+    if((m=line.match(/^[-•\*]\s+(.*)/))){if(!inList){html+='<ul class="grade-list">';inList=true;}html+='<li>'+inline(m[1])+'</li>';continue;}
+    if((m=line.match(/^(Band|Reason|Question|Candidate's Response|Relevance)\s*:\s*(.*)/i))){closeList();html+='<div class="grade-item"><strong>'+inline(m[1])+':</strong> '+inline(m[2])+'</div>';continue;}
+    closeList();html+='<div class="grade-item">'+inline(line)+'</div>';
+  }
+  closeList();
+  return html;
+}
+function extractOverallBand(md){
+  const m=(md||'').match(/Overall\s*Band\s*:?\s*(\d+(?:\.\d+)?)/i);
+  return m?m[1]:null;
+}
 async function gradeAnswer(transcript){
   const question=curQ?curQ.q:'(câu hỏi không xác định)';
   const part='Part '+currentPart;
@@ -1448,50 +1548,29 @@ async function gradeAnswer(transcript){
   box.style.display='block';
   box.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-dim)"><span style="display:inline-block;animation:spin .8s linear infinite">⏳</span> AI đang chấm bài...</div>';
   try{
-    const raw=await callClaude(
-      'IELTS examiner. Read the student answer carefully and check it sentence by sentence for: (a) subject-verb agreement (e.g. "we was" should be "we were"), (b) verb tense consistency — if the story is about the past, EVERY verb must be in past tense (e.g. "I goes/eating/walk" should be "I went/ate/walked"), (c) countable vs uncountable nouns (e.g. "too much foods" should be "too much food"), (d) missing auxiliary verbs. '
-      +'For "grammar_errors": list EVERY actual grammar mistake found this way as an object {"wrong":"<từ/cụm sai, trích nguyên văn từ bài>","correct":"<từ/cụm đã sửa đúng>","reason":"<lý do ngắn gọn bằng tiếng Việt>"}. Do NOT include suggestions to add more content/detail — that is not a grammar error. If there are truly no grammar mistakes, return an empty array. List ALL real errors found, no maximum limit. '
-      +'For "vocab_suggestions": max 2 objects {"basic":"<từ cơ bản học sinh đã dùng>","better":"<từ/cụm tự nhiên hơn, trình độ cao hơn>"}. '
-      +'For "strengths": max 2 short strings in Vietnamese, each must reference something SPECIFIC and CONCRETE the student actually said or did well in THIS answer (e.g. mention a specific word, structure, or idea from their answer) — never a vague generic sentence. '
-      +'"overall_feedback": 1-2 sentences in Vietnamese summarizing the answer quality and the single most important thing to improve. '
-      +'Output ONLY this JSON, no markdown, no quotation marks inside any field value: {"band":"5.5","grammar_errors":[{"wrong":"...","correct":"...","reason":"..."}],"vocab_suggestions":[{"basic":"...","better":"..."}],"strengths":["..."],"overall_feedback":"..."}',
-      'IELTS Speaking '+part+'\nQ: '+question+'\nAnswer: '+transcript,
-      800
-    );
-    let g;try{g=JSON.parse(raw);}catch(e){
-      g={band:extractJsonString(raw,'band')||'N/A',grammar_errors:[],vocab_suggestions:[],strengths:[],overall_feedback:extractJsonString(raw,'overall_feedback')||raw};
+    const res=await fetch(AI_PROXY_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        system:'You are a certified IELTS Speaking Examiner. Evaluate the candidate\'s IELTS Speaking response strictly according to the official IELTS Speaking Band Descriptors published by Cambridge and the British Council. Your role is to assess the response exactly as a real IELTS examiner would during the official test. Be objective, consistent and evidence-based. Never inflate or reduce the score. If only a transcript is provided, assess Fluency, Vocabulary and Grammar normally. For Pronunciation, clearly state that it cannot be fully assessed without audio and provide only an estimated score based on the transcript.'
+          +' Step 1 (Mandatory, before evaluating language quality): Relevance Check. Determine whether the candidate actually answers the examiner\'s question. Classify the response as ONE of: Fully Relevant, Mostly Relevant, Partially Relevant, Mostly Irrelevant, Completely Irrelevant. Evaluate whether the response directly addresses the examiner\'s question, the main ideas stay on the same topic, all parts of the question are answered appropriately, and the candidate avoids changing to an unrelated topic. If the response is Mostly Irrelevant or Completely Irrelevant: clearly explain why, significantly reduce the Fluency & Coherence score, and the Overall Band must reflect the lack of relevance regardless of grammar or vocabulary quality — do NOT award a high band score simply because the language is fluent or grammatically accurate. A response that does not answer the examiner\'s question cannot receive a high IELTS Speaking score. Task relevance is an essential part of Fluency and Coherence in the official IELTS Speaking Band Descriptors. Never evaluate language quality alone.'
+          +' Always evaluate, in this order: 1. Relevance to the examiner\'s question. 2. Completeness of the response. 3. Fluency and Coherence. 4. Lexical Resource. 5. Grammatical Range and Accuracy. 6. Pronunciation.'
+          +' Scoring rules: use only official IELTS band scores (0.0-9.0 in 0.5 steps). Give each of the four IELTS criteria (Fluency & Coherence, Lexical Resource, Grammatical Range & Accuracy, Pronunciation) an individual band score. Calculate the Overall Band according to IELTS rules, reflecting the four criterion scores fairly AND the relevance finding from Step 1. Every score must be justified using specific evidence from the response.'
+          +' Output format in Markdown, exactly these sections in this order: "# Relevance Check" with "Question:" (the examiner\'s question), "Candidate\'s Response:" (a brief summary), "Relevance:" (one of the five classifications above), "Reason:" (explain clearly whether the candidate answered the question and identify any missing or unrelated content); "# Overall Band" with a line "Overall Band: X.X" followed by a 2-3 sentence explanation that accounts for relevance; "# Criterion Scores" with "## Fluency & Coherence", "## Lexical Resource", "## Grammatical Range & Accuracy", "## Pronunciation" — each with a "Band:" line and a "Reason:" line (mention pronunciation is estimated if no audio); "# Strengths" as concise bullet points; "# Areas for Improvement" — only issues that genuinely affected the band; "# Grammar Corrections" — only sentences with noticeable errors, each as "❌ Original", "✅ Improved", "💡 Explanation" (do NOT rewrite the entire response); "# Vocabulary Suggestions" — 5 to 10 items formatted "Current → Better alternative" with a brief reason; "# How to Reach the Next Band" — assume the candidate wants to improve by 0.5 band, explain what prevented reaching it and give 2-3 highest-priority actionable recommendations covering Fluency, Vocabulary, Grammar, Pronunciation, and Coherence (avoid generic advice like "practice more"); "# Examiner\'s Overall Comment" — an objective, constructive, encouraging professional summary, not exaggerating strengths or softening weaknesses, never mentioning AI.',
+        userContent:'IELTS Speaking '+part+'\nQ: '+question+'\nAnswer: '+transcript,
+        maxTokens:2200
+      })
+    });
+    if(!res.ok){
+      const t=await res.text().catch(()=>'');
+      throw new Error('API_ERROR: '+res.status+' '+t.slice(0,200));
     }
-    const toArr=(v,cap)=>{
-      const arr=Array.isArray(v)?v:(v?[v]:[]);
-      const seen=new Set(),out=[];
-      for(const item of arr){
-        const key=JSON.stringify(item).trim().toLowerCase();
-        if(!key||key==='{}'||seen.has(key))continue;
-        seen.add(key);out.push(item);
-        if(out.length>=cap)break;
-      }
-      return out;
-    };
-    const toTxt=v=>{
-      let s=typeof v==='string'?v:(v==null?'':JSON.stringify(v));
-      if(s.length>400)s=s.slice(0,400)+'…';
-      return s;
-    };
-    const strengths=toArr(g.strengths,4),grammarErrors=toArr(g.grammar_errors,8),vocabSuggestions=toArr(g.vocab_suggestions,4);
-    const renderGrammarItem=o=>{
-      if(o&&typeof o==='object'&&(o.wrong||o.correct))return '❌ '+toTxt(o.wrong)+' &nbsp;→&nbsp; ✅ '+toTxt(o.correct)+(o.reason?' <span style="color:var(--text-dim)">('+toTxt(o.reason)+')</span>':'');
-      return toTxt(o);
-    };
-    const renderVocabItem=o=>{
-      if(o&&typeof o==='object'&&(o.basic||o.better))return toTxt(o.basic)+' &nbsp;→&nbsp; <strong>'+toTxt(o.better)+'</strong>';
-      return toTxt(o);
-    };
+    const data=await res.json();
+    const md=(typeof data.text==='string'?data.text:JSON.stringify(data.text||'')).trim();
+    const band=extractOverallBand(md);
     box.innerHTML=`
-      <div class="grade-band">Band ${toTxt(g.band)||'?'}</div>
-      ${strengths.length?`<div class="grade-section"><div class="grade-section-title">✅ Điểm mạnh</div>${strengths.map(s=>`<div class="grade-item ok">${toTxt(s)}</div>`).join('')}</div>`:''}
-      ${grammarErrors.length?`<div class="grade-section"><div class="grade-section-title">⚠️ Lỗi ngữ pháp</div>${grammarErrors.map(s=>`<div class="grade-item">${renderGrammarItem(s)}</div>`).join('')}</div>`:''}
-      ${vocabSuggestions.length?`<div class="grade-section"><div class="grade-section-title">💡 Từ vựng gợi ý</div>${vocabSuggestions.map(s=>`<div class="grade-item">${renderVocabItem(s)}</div>`).join('')}</div>`:''}
-      ${g.overall_feedback?`<div class="grade-section"><div class="grade-section-title">📋 Nhận xét tổng</div><div class="grade-item">${toTxt(g.overall_feedback)}</div></div>`:''}
+      <div class="grade-band">Band ${band||'?'}</div>
+      <div class="grade-markdown">${mdToHtml(md)}</div>
     `;
     document.getElementById('recStatusTxt').textContent='Đã chấm xong';
   }catch(err){
@@ -1753,31 +1832,99 @@ function sampleAnswerBandConfig(){
   }
   return {label:'Band 5.5 – 7.0',desc:'reasonably varied vocabulary, generally accurate grammar'};
 }
-function partStructureInstruction(partNum){
+function seedHash(str){let h=5381;for(let i=0;i<str.length;i++){h=((h<<5)+h+str.charCodeAt(i))|0;}return Math.abs(h);}
+function detectP2Category(userContent){
+  const s=(userContent||'').toLowerCase();
+  if(/\bperson\b|\bfriend\b|\bteacher\b|\badmire\b|\bfamous person\b|\bhe\/she\b|\bfamily member\b|\bneighbou?r\b|\bcelebrity\b|\bsomeone\b|\bcolleague\b|\bclassmate\b|\brelative\b/.test(s))return'person';
+  if(/\bplace\b|\bcity\b|\bcountry\b|\bvisit\b|\bhouse\b|\broom\b|\brestaurant\b|\bpark\b|\bcafe\b|\bcafé\b|\bshop\b|\bstore\b|\bmuseum\b|\bbuilding\b|\bvillage\b|\btown\b|\bcafeteria\b/.test(s))return'place';
+  if(/\bitem\b|\bobject\b|\bthing\b|\bgift\b|\bbought\b|\bpossession\b|\bbook\b|\bmovie\b|\bfilm\b|\bsong\b|\bphoto\b|\bapp\b|\bwebsite\b|\bgadget\b|\bskill\b|\bhobby\b|\bsport\b|\bgame\b|\bfood\b|\bdish\b|\bclothes\b|\btoy\b/.test(s))return'object';
+  if(/\bevent\b|\bexperience\b|\bday\b|\btrip\b|\bjourney\b|\bdecision\b|\bhappened\b|\bholiday\b|\bvacation\b|\bcelebration\b|\bparty\b|\bwedding\b|\bcompetition\b|\bchallenge\b|\bachievement\b|\bmistake\b|\bchange\b|\btime when\b/.test(s))return'event';
+  return'general';
+}
+const P2_OPENINGS_SHORT={
+  general:['I\'d like to talk about...','I\'m going to talk about...','Today, I\'d like to tell you about...','One thing I\'d like to talk about is...'],
+  person:['The person I\'d like to talk about is...','One person I\'d like to describe is...'],
+  place:['The place I\'d like to describe is...','One place I\'d like to talk about is...'],
+  object:['The item I\'d like to talk about is...','One thing I\'d like to describe is...'],
+  event:['The experience I\'d like to share is...','One event I still remember is...']
+};
+const P2_OPENINGS_LONG={
+  general:['The first thing that comes to my mind is...','One thing I\'d really like to talk about is...','A good example that I can think of is...','One memorable... that I\'d like to share is...','I\'d like to talk about..., which is something I remember very clearly.','The first thing that comes to my mind is..., because it had a big impact on me.','There are quite a few..., but the one I\'d like to describe today is...'],
+  person:['The person I\'d like to talk about is...','Someone who has had a great influence on me is...','One person I really admire is...'],
+  place:['The place that immediately comes to my mind is...','One place I really enjoy visiting is...','The place I\'d like to describe is...'],
+  object:['One thing that is very important to me is...','The object I\'d like to describe is...','The item I\'d like to talk about is...'],
+  event:['One memorable event in my life was...','The experience I\'d like to share is...','I\'d like to tell you about an experience that I still remember clearly.']
+};
+function pickP2Opening(userContent,isShort){
+  const cat=detectP2Category(userContent);
+  const table=isShort?P2_OPENINGS_SHORT:P2_OPENINGS_LONG;
+  const options=table[cat]||table.general;
+  const idx=seedHash(userContent||'')%options.length;
+  return options[idx];
+}
+const P2_FORMAT_RULE=' Structure the answer as 3 distinct paragraphs (Introduction / Body covering every cue card point / Conclusion with the personal opinion), separated by the literal sequence \n\n (two newline characters) between each paragraph — no labels like "Introduction:"/"Body:"/"Conclusion:". Within each paragraph write ONE continuous block of flowing prose — do NOT put a line break between individual sentences. The ENTIRE "answer" string must contain \n\n EXACTLY TWICE TOTAL — once between paragraph 1 and 2, once between paragraph 2 and 3 — and NO other newline characters anywhere else. Do the same \n\n paragraph split (exactly twice, nowhere else) in the Vietnamese "translation" field, matching the same 3 parts. Before finalizing, count your words and revise so the TOTAL length across all 3 paragraphs is between 180 and 250 English words.';
+function partStructureInstruction(partNum,userContent){
   if(partNum===1)return 'Write EXACTLY 3 to 4 SEPARATE sentences, each ending with its own period — you must produce 3 or 4 distinct sentences, NOT one single long sentence. Do NOT chain everything together with commas, "and", "whereas", "especially" etc. into one giant sentence — each sentence must stand on its own with a clear stop (period) before the next one begins. However, each individual sentence should itself be grammatically complex (not simple) — use ONE complex structure per sentence: e.g. sentence 1 could contain a relative clause (who/which/that/where), sentence 2 a conditional (if...), sentence 3 a comparative or double comparative ("the more..., the more..."), sentence 4 another complex structure. NEVER split a relative clause or dependent clause off as its own separate sentence — it must stay attached to the independent clause it modifies within the SAME sentence. Example of 2 correct separate sentences: "I come from a small town in central Vietnam, which is well known for its rich cultural heritage. If I had more free time, I would explore it more often." — that is TWO sentences, not one, and TWO would continue with sentences 3 and 4. Be concise, do not pad.';
-  if(partNum===2)return 'Write the answer with a clear IELTS Part 2 structure made of 3 distinct paragraphs, separated by the literal sequence \\n\\n (two newline characters) between each paragraph — no labels like "Introduction:"/"Body:"/"Conclusion:", just a blank line between them: Paragraph 1 = a brief Introduction (1 sentence introducing the topic). Paragraph 2 = the Body (several sentences developing each bullet point of the cue card with specific details and examples). Paragraph 3 = a short Conclusion (1 sentence wrapping up with a reflection or feeling). Do the same \\n\\n paragraph split in the Vietnamese "translation" field, matching the same 3 parts. Before finalizing, count your words and revise so the TOTAL length across all 3 paragraphs is between 180 and 220 English words — not fewer than 180, not more than 220. This is a strict requirement, check carefully before answering.';
+  if(partNum===2){
+    const isShort=currentDataset==='short';
+    const opening=pickP2Opening(userContent,isShort);
+    const openingRule=' Start the Introduction paragraph with this EXACT opening (you may adapt only the words after "..." to fit the topic, but keep this exact opening clause word-for-word): "'+opening+'" — do NOT substitute a different opening phrase, use ONLY the opening given here.';
+    if(isShort){
+      return 'You are an experienced IELTS Speaking examiner writing a Band 4.0–5.0 Part 2 answer.'
+        +' Length: between 180 and 250 English words — long enough for approximately 2 minutes of speaking at a slower pace. Expand ideas with simple supporting details instead of repeating the same point. Every sentence should contribute meaningful information.'
+        +' Speaking style: write as spoken English, NOT as an essay — natural, simple, and easy to understand. Use contractions naturally (I\'m, I\'ve, don\'t, that\'s, etc.). You may occasionally use simple fillers such as Well..., Let me think..., I think... — do not overuse fillers.'
+        +' Vocabulary: use only common everyday vocabulary. Use simple topic-related vocabulary where appropriate. Avoid advanced words, idioms, uncommon collocations, and difficult expressions. It is acceptable to repeat common vocabulary naturally — prioritize clarity over lexical variety.'
+        +' Grammar: mainly use Simple Present and Simple Past. You may occasionally use Present Perfect, Future Simple, or "would" if they naturally fit the context. Use a few compound sentences with because/and/but/so. Minor grammatical mistakes are acceptable as long as communication remains clear. Avoid complicated sentence structures.'
+        +openingRule
+        +' After the introduction, continue smoothly using simple linking expressions where appropriate, such as: "It happened when...", "I first...", "I got/bought/visited it when...", "I met him/her when...", "I\'ve had it for...", "Since then...", "After that...", "Because of that...", "That\'s why...", "For example...", "Also...", "In the end...". Only use the expressions that naturally fit the topic.'
+        +' Answer ALL bullet points from the cue card. Develop each point with one or two simple supporting details. Use simple examples from daily life whenever possible. Even though the language is simple, avoid giving very short answers.'
+        +' Finish with one short personal opinion, e.g. "I really enjoyed it.", "It was a great experience.", "I learned a lot from it.", "Overall, I think it was a good experience.", "That\'s why I still remember it.", "It means a lot to me.", "I hope I can do it again.", "I would like to do it again in the future."'
+        +' Do NOT write like an essay. Keep the language simple and natural. Avoid advanced vocabulary and complicated grammar. Minor grammar mistakes and occasional repetition are acceptable. Maintain a logical flow from beginning to end. Make the answer sound like a real IELTS Band 4–5 candidate speaking naturally.'
+        +P2_FORMAT_RULE;
+    }
+    return 'You are a professional IELTS Speaking coach and former IELTS examiner writing a Band 5.5–7.0 Part 2 answer.'
+      +' Length: between 180 and 250 English words — long enough for approximately 2 minutes of speaking at a natural pace. Every sentence should contribute meaningful information. Expand ideas naturally without repeating the same point simply to increase the word count.'
+      +' Speaking style: write as spoken English, NOT as an essay — natural, fluent, and conversational. Use contractions naturally (I\'m, I\'ve, don\'t, that\'s, etc.). You may occasionally use natural fillers such as Well..., Actually..., To be honest..., I guess..., If I remember correctly... — do not overuse fillers. Make the response sound spontaneous rather than memorized.'
+      +' Vocabulary: use a good range of everyday vocabulary. Include some less common words and natural collocations appropriate for Band 5.5–7. Use topic-related vocabulary naturally. Avoid overly academic or unnatural vocabulary. Do not use difficult words simply to impress.'
+      +' Grammar: use a balanced mix of simple, compound, and complex sentences. Use different tenses naturally where appropriate. Include relative clauses and other common complex structures. Grammar should be generally accurate with only occasional minor mistakes.'
+      +openingRule
+      +' After the introduction, continue smoothly using suitable linking expressions where appropriate, such as: "It happened when...", "I first...", "I got/bought/visited it when...", "I met him/her when...", "I\'ve had it for...", "Since then...", "As a result...", "Looking back,...", "What I liked most was...", "The reason I remember it so well is that...". Only use expressions that naturally fit the topic.'
+      +' Answer ALL bullet points from the cue card. Develop each point with explanations, examples, or believable personal details. Organize ideas logically so the response flows naturally.'
+      +' Finish with a short personal opinion or reflection, e.g. "Looking back, it was definitely one of the best experiences I\'ve ever had.", "That\'s why this memory is still very special to me.", "Overall, it taught me an important lesson.", "Even now, I still think about it from time to time.", "I hope I\'ll have a chance to experience something like that again."'
+      +' Do NOT write like an essay. Do NOT sound like a memorized sample answer. Avoid unnatural repetition. Vary sentence length naturally. Include one or two believable personal details or examples. Maintain clear coherence and logical progression. Make the answer sound like a real IELTS Band 5.5–7.0 candidate speaking naturally.'
+      +P2_FORMAT_RULE;
+  }
   return 'Write ONE flowing paragraph (no headings, no bullet points, no line breaks, no numbering) of 3 to 5 sentences total, structured internally in this order: (1) a Topic Sentence that directly states your answer/opinion, (2) a sentence for the Main Idea — your core reason, (3) one or two Supporting sentences (details or an example) that support the main idea. Do not label the parts or separate them visually — write it as one natural connected paragraph. Be concise.';
 }
-const NATURAL_STYLE_INSTRUCTION=' Act like a certified IELTS Speaking examiner giving a model spoken answer — NOT an essay. Sound like a real candidate speaking naturally, not reading from a script. Avoid generic, overused openings such as "I would like to talk about...", "I want to talk about...", or "The person/thing I want to talk about is...". Instead start conversationally, e.g. "There are quite a few...", "If I had to choose...", "The first thing that comes to mind is...", "I\'ve always liked...", "Well, ...", "To be honest, ...", "Actually, ...". Use natural fillers like these only where they fit naturally, do not overuse them. Develop ideas with genuine reasons/examples rather than just listing points. Avoid repeating the same vocabulary — vary word choice. This must still match the target band level below, not exceed it.';
-function buildSampleAnswerPrompt(partNum){
+function naturalStyleInstruction(partNum){
+  const openingRule=partNum===2
+    ? ' Follow the required Part 2 opening phrase given below — do not replace it with a different style.'
+    : ' Avoid generic, overused openings such as "I would like to talk about...", "I want to talk about...", or "The person/thing I want to talk about is...". Instead start conversationally, e.g. "There are quite a few...", "If I had to choose...", "The first thing that comes to mind is...", "I\'ve always liked...", "Well, ...", "To be honest, ...", "Actually, ...".';
+  return ' Act like a certified IELTS Speaking examiner giving a model spoken answer — NOT an essay. Sound like a real candidate speaking naturally, not reading from a script.'+openingRule+' Use natural fillers only where they fit naturally, do not overuse them. Develop ideas with genuine reasons/examples rather than just listing points. Avoid repeating the same vocabulary — vary word choice. This must still match the target band level below, not exceed it.';
+}
+function buildSampleAnswerPrompt(partNum,userContent){
   const band=sampleAnswerBandConfig();
-  return 'IELTS speaking coach. Write a '+band.label+' sample answer ('+band.desc+').'+NATURAL_STYLE_INSTRUCTION+' '+partStructureInstruction(partNum)
+  return 'IELTS speaking coach. Write a '+band.label+' sample answer ('+band.desc+').'+naturalStyleInstruction(partNum)+' '+partStructureInstruction(partNum,userContent)
     +' Write it as normal connected prose (no line breaks except where instructed, no numbering). Never repeat a sentence or idea — if you notice you are repeating, stop immediately and close the JSON.'
     +' Also include a "why_this_band" field: 1-2 short sentences in Vietnamese explaining briefly why this answer fits '+band.label+' according to IELTS Speaking criteria (Fluency & Coherence, Lexical Resource, Grammar, Pronunciation-related word choice), no quotation marks inside.'
     +' Output EXACTLY ONE JSON object and nothing else, no markdown, no repeated objects, and make sure the JSON is complete and properly closed: {"answer":"...","translation":"...","why_this_band":"..."}';
 }
-function sampleAnswerMaxTokens(partNum){return partNum===2?1500:1600}
+function sampleAnswerMaxTokens(partNum){return partNum===2?1800:1600}
 function extractJsonString(raw,key){
   const m=raw.match(new RegExp('"'+key+'"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)'));
   if(!m)return '';
-  return m[1].replace(/\\"/g,'"').replace(/\\n/g,' ');
+  return m[1].replace(/\\"/g,'"').replace(/\\n/g,'\n');
+}
+function extractJsonNumber(raw,key){
+  const m=raw.match(new RegExp('"'+key+'"\\s*:\\s*(-?\\d+(?:\\.\\d+)?)'));
+  return m?parseFloat(m[1]):null;
 }
 async function runSampleAnswer(partNum,userContent,box,cacheKey,badgeExtra){
   const inner=box.querySelector('.aq-ans-inner');
   const band=sampleAnswerBandConfig();
   inner.innerHTML='<div class="aq-ans-loading"><span class="spin">⏳</span> Đang tạo đáp án '+band.label+'...</div>';
   try{
-    const raw=await callClaude(buildSampleAnswerPrompt(partNum),userContent,sampleAnswerMaxTokens(partNum));
+    const raw=await callClaude(buildSampleAnswerPrompt(partNum,userContent),userContent,sampleAnswerMaxTokens(partNum));
     let parsed;try{parsed=JSON.parse(raw);}catch(e2){
       parsed={answer:extractJsonString(raw,'answer'),translation:extractJsonString(raw,'translation')};
     }
@@ -1786,11 +1933,12 @@ async function runSampleAnswer(partNum,userContent,box,cacheKey,badgeExtra){
       if(s.length>1600)s=s.slice(0,1600)+'…';
       return s;
     };
-    let ansRaw=toStr(parsed.answer||raw);
+    const normalizeLiteralNewlines=s=>s.replace(/\\n/g,'\n');
+    let ansRaw=normalizeLiteralNewlines(toStr(parsed.answer||raw));
     if(partNum===2){
       const words=ansRaw.match(/\S+/g)||[];
-      if(words.length>230){
-        ansRaw=words.slice(0,220).join(' ');
+      if(words.length>260){
+        ansRaw=words.slice(0,250).join(' ');
         const lastStop=Math.max(ansRaw.lastIndexOf('. '),ansRaw.lastIndexOf('.\n'));
         if(lastStop>ansRaw.length*0.6)ansRaw=ansRaw.slice(0,lastStop+1);
         else ansRaw+='.';
@@ -1800,19 +1948,24 @@ async function runSampleAnswer(partNum,userContent,box,cacheKey,badgeExtra){
     const toParas=s=>{
       const escaped=s.replace(/</g,'&lt;');
       let paras=escaped.split(/\n\s*\n+/).map(p=>p.trim()).filter(Boolean);
-      if(partNum===2&&paras.length<2){
-        const sents=splitSentences(escaped).map(x=>x.trim()).filter(Boolean);
-        if(sents.length>=3){
-          const intro=sents[0],concl=sents[sents.length-1],body=sents.slice(1,-1).join(' ');
+      if(partNum===2){
+        if(paras.length<2){
+          const sents=splitSentences(escaped).map(x=>x.trim()).filter(Boolean);
+          if(sents.length>=3){
+            const intro=sents[0],concl=sents[sents.length-1],body=sents.slice(1,-1).join(' ');
+            paras=[intro,body,concl];
+          }else paras=[escaped];
+        }else if(paras.length>3){
+          const intro=paras[0],concl=paras[paras.length-1],body=paras.slice(1,-1).join(' ');
           paras=[intro,body,concl];
-        }else paras=[escaped];
+        }
       }
       return paras;
     };
     const ansParas=toParas(ansRaw);
-    const viParas=toParas(toStr(parsed.translation));
+    const viParas=toParas(normalizeLiteralNewlines(toStr(parsed.translation)));
     const wc=(ansRaw.match(/\S+/g)||[]).length;
-    const wcNote=partNum===2?'<div style="font-size:.72rem;font-weight:800;color:'+(wc>=180&&wc<=220?'#059669':'#d97706')+';margin-bottom:8px">📝 '+wc+' từ'+(wc>=180&&wc<=220?' — đúng chuẩn 180-220':'')+'</div>':'';
+    const wcNote=partNum===2?'<div style="font-size:.72rem;font-weight:800;color:'+(wc>=180&&wc<=250?'#059669':'#d97706')+';margin-bottom:8px">📝 '+wc+' từ'+(wc>=180&&wc<=250?' — đúng chuẩn 180-250':'')+'</div>':'';
     const ansHtml=ansParas.map(p=>'<div class="aq-ans-en" style="margin-bottom:10px">'+wrapDictWords(p)+'</div>').join('');
     const viHtml=viParas.map(p=>'<div class="aq-ans-vi" style="margin-bottom:10px">'+p+'</div>').join('');
     const whyBand=toStr(parsed.why_this_band).replace(/</g,'&lt;');
