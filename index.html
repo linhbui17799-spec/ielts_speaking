@@ -222,6 +222,7 @@ hr.div{border:none;border-top:1.5px solid #f0c0c5;margin:16px 0}
 .grade-h2{font-weight:800;font-size:.88rem;color:var(--text);margin:10px 0 4px}
 .grade-list{margin:0 0 6px;padding-left:20px}
 .grade-list li{font-size:.85rem;line-height:1.6;color:var(--text);margin-bottom:3px}
+.grade-band-pill{display:inline-block;background:var(--accent);color:#fff;font-family:'Bebas Neue';font-size:1.15rem;letter-spacing:1px;padding:3px 16px;border-radius:20px;margin-bottom:6px}
 /* ADMIN */
 .admin-login{max-width:400px;margin:40px auto;background:#fff;border:1.5px solid var(--border);border-radius:20px;padding:40px;text-align:center;box-shadow:0 8px 40px rgba(230,57,70,.12)}
 .admin-login h2{font-family:'Bebas Neue';font-size:2rem;color:var(--accent);margin-bottom:8px;letter-spacing:2px}
@@ -1438,10 +1439,11 @@ function _timerDraw(left,total){
 function _timerBeep(){try{const ac=new(window.AudioContext||window.webkitAudioContext)();[0,.18,.36].forEach(d=>{const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.frequency.value=880;o.type='sine';g.gain.setValueAtTime(.4,ac.currentTime+d);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d+.15);o.start(ac.currentTime+d);o.stop(ac.currentTime+d+.15)});}catch(e){}}
 
 // ── RECORDING + AI GRADING ─────────────────────────────────────────────────
-let mediaRecorder=null,recognition=null,recChunks=[];
+let mediaRecorder=null,recognition=null,recChunks=[],recFinalSegments=[];
 function recStart(){
   const transcriptEl=document.getElementById('recTranscript');
   transcriptEl.textContent='';
+  recFinalSegments=[];
   document.getElementById('gradeBox').style.display='none';
   document.getElementById('recStartBtn').disabled=true;
   document.getElementById('recStopBtn').disabled=false;
@@ -1453,13 +1455,16 @@ function recStart(){
     recognition=new SR();
     recognition.lang='en-US';recognition.continuous=true;recognition.interimResults=true;
     recognition.onresult=e=>{
-      let final='',interim='';
+      // Store each final result by its index instead of blindly appending —
+      // some engines (notably Android Chrome) re-emit the same result index
+      // more than once, which caused text to be duplicated when appended.
+      let interim='';
       for(let i=e.resultIndex;i<e.results.length;i++){
-        if(e.results[i].isFinal)final+=e.results[i][0].transcript+' ';
+        if(e.results[i].isFinal)recFinalSegments[i]=e.results[i][0].transcript.trim();
         else interim+=e.results[i][0].transcript;
       }
-      const cur=transcriptEl.textContent.replace(/\[interim:.*?\]/g,'').trimEnd();
-      transcriptEl.textContent=(cur+' '+final+(interim?'[interim: '+interim+']':'')).trim();
+      const final=recFinalSegments.filter(Boolean).join(' ');
+      transcriptEl.textContent=(final+(interim?' [interim: '+interim+']':'')).trim();
     };
     recognition.onerror=e=>console.warn('SR error:',e.error);
     recognition.start();
@@ -1475,7 +1480,7 @@ function recStop(){
   document.getElementById('recDot').classList.remove('recording');
   document.getElementById('recStatusTxt').textContent='Đang chấm...';
   const raw=document.getElementById('recTranscript').textContent.replace(/\[interim:.*?\]/g,'').trim();
-  if(!raw||raw.length<5){notify('Chưa có nội dung để chấm!','error');document.getElementById('recStatusTxt').textContent='Sẵn sàng';return}
+  if(!raw){notify('Chưa có nội dung để chấm!','error');document.getElementById('recStatusTxt').textContent='Sẵn sàng';return}
   gradeAnswer(raw);
 }
 // ── AI PROXY (gọi qua Cloudflare Worker, không cần API key phía người dùng) ──
@@ -1531,32 +1536,127 @@ function mdToHtml(md){
     if((m=line.match(/^#{2,6}\s+(.*)/))){closeList();html+='<div class="grade-h2">'+inline(m[1])+'</div>';continue;}
     if(/^-{3,}$/.test(line)){closeList();continue;}
     if((m=line.match(/^[-•\*]\s+(.*)/))){if(!inList){html+='<ul class="grade-list">';inList=true;}html+='<li>'+inline(m[1])+'</li>';continue;}
-    if((m=line.match(/^(Band|Reason|Question|Candidate's Response|Relevance)\s*:\s*(.*)/i))){closeList();html+='<div class="grade-item"><strong>'+inline(m[1])+':</strong> '+inline(m[2])+'</div>';continue;}
+    if((m=line.match(/^Band\s*:\s*(.*)/i))){closeList();html+='<div class="grade-band-pill">Band '+inline(m[1]||'?')+'</div>';continue;}
+    if((m=line.match(/^(Reason|Question|Candidate's Response|Relevance)\s*:\s*(.*)/i))){closeList();html+='<div class="grade-item"><strong>'+inline(m[1])+':</strong> '+inline(m[2])+'</div>';continue;}
     closeList();html+='<div class="grade-item">'+inline(line)+'</div>';
   }
   closeList();
   return html;
 }
 function extractOverallBand(md){
-  const m=(md||'').match(/Overall\s*Band\s*:?\s*(\d+(?:\.\d+)?)/i);
+  const m=(md||'').match(/Overall\s*Band\s*:?\s*\(?\s*(\d+(?:\.\d+)?)\)?/i);
   return m?m[1]:null;
+}
+function extractCriterionBands(md){
+  const text=md||'';
+  const names=['Fluency\\s*(?:&|and)\\s*Coherence','Lexical\\s*Resource','Gramm(?:atical|ar)\\s*Range\\s*(?:&|and)\\s*Accuracy','Pronunciation'];
+  const bands=[];
+  for(const name of names){
+    const re=new RegExp(name+'\\s*:?[\\s\\S]{0,80}?Band:\\s*[^\\d\\n]{0,30}(\\d+(?:\\.\\d+)?)','i');
+    const m=text.match(re);
+    if(!m)return null;
+    bands.push(parseFloat(m[1]));
+  }
+  return bands;
+}
+// Strict IELTS convention requested: the raw average is floored to the nearest
+// official half-band and never rounded up (e.g. 6.49→6.0, 6.74→6.5, 6.99→6.5).
+// Rounding up is only ever justified by a qualitative "all four descriptors
+// clearly met" judgment call the app cannot verify, so it always enforces the
+// conservative floor — consistent with the rule "if uncertain, award the lower band".
+function computeOverallBand(scores){
+  const avg=scores.reduce((a,b)=>a+b,0)/scores.length;
+  return Math.floor(avg*2)/2;
+}
+// Detects input that contains no real English words (e.g. random keymashing
+// like "dsgrfdg"). The free grading model reliably collapses into a broken,
+// unparseable reply for this kind of input, so we skip the API call entirely
+// and score it the way a real examiner would: Band 1, "no rateable language" —
+// rather than surfacing an error dialog for something that IS gradeable.
+function looksLikeGibberish(text){
+  const letters=(text.match(/[a-zA-Z]/g)||[]).length;
+  if(letters<4)return false;
+  const vowels=(text.match(/[aeiouAEIOU]/g)||[]).length;
+  return (vowels/letters)<0.15;
+}
+// The free grading model isn't just unreliable on gibberish — it also
+// reliably fails to produce a parseable structured reply for very short
+// real-word answers (e.g. "yes yes"), because there's too little content
+// for it to fill out four criteria sensibly. Rather than depending on it to
+// succeed, treat "too little language to grade" as its own deterministic
+// case and never call the API for it at all.
+function looksTooShortToGrade(text){
+  return text.trim().split(/\s+/).filter(Boolean).length<4;
+}
+function lowContentReportMd(band,reason,pronunciationReason){
+  const r='Reason: '+reason;
+  const bandStr=band.toFixed(1);
+  return '# Overall Band\n('+bandStr+')\n\n'
+    +'# Fluency & Coherence\nBand: '+band+'\n'+r+'\n\n'
+    +'# Lexical Resource\nBand: '+band+'\n'+r+'\n\n'
+    +'# Grammar Range & Accuracy\nBand: '+band+'\n'+r+'\n\n'
+    +'# Pronunciation\nBand: '+band+'\nReason: '+pronunciationReason+'\n\n'
+    +'# Major Errors\n## Grammar\n- None noted — too little language was produced to assess.\n## Vocabulary\n- None noted — too little language was produced to assess.\n## Pronunciation\n- None noted — too little language was produced to assess.\n## Fluency\n- The response does not contain enough language to demonstrate fluency or coherence.\n\n'
+    +'# Band Improvement Advice\nGive a fuller spoken answer in English that directly addresses the examiner\'s question with at least one complete, developed sentence — this is required before a higher band can be given.\n\n'
+    +'# Estimate\nCurrent Level: Band '+band+'\nLikely Range: '+bandStr+'\nConfidence: Very Accurate';
+}
+// The model sometimes states a Final/Overall Band that doesn't match its own four
+// criterion scores (LLM arithmetic is unreliable). Recompute it deterministically
+// from the criterion Band: values so the displayed score is always consistent.
+function reconcileOverallBand(md){
+  const bands=extractCriterionBands(md);
+  if(!bands)return md;
+  const computedStr=computeOverallBand(bands).toFixed(1);
+  return /(?:Final\s+)?Overall\s*Band/i.test(md)
+    ?md.replace(/((?:Final\s+)?Overall\s*Band\s*:?\s*\(?\s*)\d+(?:\.\d+)?(\s*\)?)/i,'$1'+computedStr+'$2')
+    :md;
+}
+function renderGradeResult(rawMd){
+  const box=document.getElementById('gradeBox');
+  const md=reconcileOverallBand(rawMd);
+  const band=extractOverallBand(md);
+  // The free Workers AI model occasionally collapses into a near-empty or
+  // malformed reply (e.g. just a stray quote) instead of a real assessment,
+  // especially for very short/garbled input. Detect that instead of
+  // rendering a broken "Band ?" panel with unreadable leftover text.
+  if(!band||!extractCriterionBands(md)){
+    box.innerHTML=aiErrorHtml(new Error('AI không trả về được bài chấm hợp lệ (có thể do câu trả lời quá ngắn hoặc không rõ nghĩa). Vui lòng ghi âm lại với nội dung rõ ràng hơn và thử lại.'));
+    document.getElementById('recStatusTxt').textContent='Lỗi';
+    return;
+  }
+  // The "Overall Band" section only repeats the score already shown in the
+  // big badge above, so drop it from the body to avoid showing it twice.
+  const bodyMd=md.replace(/#\s*Overall\s*Band[\s\S]*?(?=\n#\s|$)/i,'').trim();
+  box.innerHTML=`
+    <div class="grade-band">Band ${band}</div>
+    <div class="grade-markdown">${mdToHtml(bodyMd)}</div>
+  `;
+  document.getElementById('recStatusTxt').textContent='Đã chấm xong';
 }
 async function gradeAnswer(transcript){
   const question=curQ?curQ.q:'(câu hỏi không xác định)';
   const part='Part '+currentPart;
   const box=document.getElementById('gradeBox');
   box.style.display='block';
+  if(looksLikeGibberish(transcript)){
+    renderGradeResult(lowContentReportMd(1,'The response contains no recognizable English words, so it cannot be understood or evaluated as language, per the official Band 1 descriptor ("no communication possible, no rateable language").','No rateable language was produced, so pronunciation cannot be assessed.'));
+    return;
+  }
+  if(looksTooShortToGrade(transcript)){
+    renderGradeResult(lowContentReportMd(2,'The response consists of only a few isolated words and does not develop an answer to the question, per the Band 2 descriptor ("can produce almost no rateable language except isolated words").','The response is too brief to assess pronunciation.'));
+    return;
+  }
   box.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-dim)"><span style="display:inline-block;animation:spin .8s linear infinite">⏳</span> AI đang chấm bài...</div>';
   try{
     const res=await fetch(AI_PROXY_URL,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        system:'You are a certified IELTS Speaking Examiner. Evaluate the candidate\'s IELTS Speaking response strictly according to the official IELTS Speaking Band Descriptors published by Cambridge and the British Council. Your role is to assess the response exactly as a real IELTS examiner would during the official test. Be objective, consistent and evidence-based. Never inflate or reduce the score. If only a transcript is provided, assess Fluency, Vocabulary and Grammar normally. For Pronunciation, clearly state that it cannot be fully assessed without audio and provide only an estimated score based on the transcript.'
-          +' Step 1 (Mandatory, before evaluating language quality): Relevance Check. Determine whether the candidate actually answers the examiner\'s question. Classify the response as ONE of: Fully Relevant, Mostly Relevant, Partially Relevant, Mostly Irrelevant, Completely Irrelevant. Evaluate whether the response directly addresses the examiner\'s question, the main ideas stay on the same topic, all parts of the question are answered appropriately, and the candidate avoids changing to an unrelated topic. If the response is Mostly Irrelevant or Completely Irrelevant: clearly explain why, significantly reduce the Fluency & Coherence score, and the Overall Band must reflect the lack of relevance regardless of grammar or vocabulary quality — do NOT award a high band score simply because the language is fluent or grammatically accurate. A response that does not answer the examiner\'s question cannot receive a high IELTS Speaking score. Task relevance is an essential part of Fluency and Coherence in the official IELTS Speaking Band Descriptors. Never evaluate language quality alone.'
-          +' Always evaluate, in this order: 1. Relevance to the examiner\'s question. 2. Completeness of the response. 3. Fluency and Coherence. 4. Lexical Resource. 5. Grammatical Range and Accuracy. 6. Pronunciation.'
-          +' Scoring rules: use only official IELTS band scores (0.0-9.0 in 0.5 steps). Give each of the four IELTS criteria (Fluency & Coherence, Lexical Resource, Grammatical Range & Accuracy, Pronunciation) an individual band score. Calculate the Overall Band according to IELTS rules, reflecting the four criterion scores fairly AND the relevance finding from Step 1. Every score must be justified using specific evidence from the response.'
-          +' Output format in Markdown, exactly these sections in this order: "# Relevance Check" with "Question:" (the examiner\'s question), "Candidate\'s Response:" (a brief summary), "Relevance:" (one of the five classifications above), "Reason:" (explain clearly whether the candidate answered the question and identify any missing or unrelated content); "# Overall Band" with a line "Overall Band: X.X" followed by a 2-3 sentence explanation that accounts for relevance; "# Criterion Scores" with "## Fluency & Coherence", "## Lexical Resource", "## Grammatical Range & Accuracy", "## Pronunciation" — each with a "Band:" line and a "Reason:" line (mention pronunciation is estimated if no audio); "# Strengths" as concise bullet points; "# Areas for Improvement" — only issues that genuinely affected the band; "# Grammar Corrections" — only sentences with noticeable errors, each as "❌ Original", "✅ Improved", "💡 Explanation" (do NOT rewrite the entire response); "# Vocabulary Suggestions" — 5 to 10 items formatted "Current → Better alternative" with a brief reason; "# How to Reach the Next Band" — assume the candidate wants to improve by 0.5 band, explain what prevented reaching it and give 2-3 highest-priority actionable recommendations covering Fluency, Vocabulary, Grammar, Pronunciation, and Coherence (avoid generic advice like "practice more"); "# Examiner\'s Overall Comment" — an objective, constructive, encouraging professional summary, not exaggerating strengths or softening weaknesses, never mentioning AI.',
+        system:'You are a certified IELTS Speaking examiner with over 20 years of experience. Assess a candidate\'s IELTS Speaking performance strictly according to the official IELTS Speaking Band Descriptors (Band 0-9). Never inflate or deflate scores. You must behave exactly like an IELTS examiner.'
+          +' Scoring criteria — evaluate ONLY using these four official criteria, each weighted equally (25%). 1. Fluency and Coherence: speaking speed, hesitation, self-correction, repetition, ability to develop ideas, logical organization, linking devices, discourse markers. 2. Lexical Resource: vocabulary range, topic vocabulary, paraphrasing ability, collocations, idiomatic language, precision, incorrect word choice. 3. Grammatical Range and Accuracy: sentence variety, complex structures, subordinate clauses, tense control, articles, prepositions, subject-verb agreement, error frequency, whether errors reduce clarity. 4. Pronunciation: intelligibility, word stress, sentence stress, connected speech, rhythm, intonation, consonants, vowels, pronunciation errors — judge this on the criteria above, never on accent; if only a transcript is provided (no audio), clearly note that Pronunciation is only an estimate inferred from transcript cues.'
+          +' Important: do NOT reward memorised answers. Do NOT reward long answers if they contain many grammatical mistakes. Do NOT reward advanced vocabulary if used incorrectly. Minor mistakes should not significantly reduce the score. Repeated grammar mistakes should reduce the score. Repeated pronunciation problems should reduce the score. Band 9 should only be awarded if the performance fully meets Band 9 descriptors in every criterion. As part of Fluency & Coherence, briefly note whether the response actually addresses the examiner\'s question; a response that ignores the question or goes off-topic must lower this score, with the off-topic content quoted or paraphrased as evidence — a clear, on-topic answer to a short question must not be penalized merely for brevity. Calculate the Overall Band as the average of the four criterion bands; if the average falls between two official bands, award the LOWER band unless the descriptors of the higher band are clearly and fully met in ALL four criteria — never round up simply because the decimal is closer to the next band. Every score must be justified using specific evidence quoted or paraphrased from the response.'
+          +' Return ONLY the following structure, in Markdown, exactly in this order: "# Overall Band" with the score alone on the next line in parentheses, e.g. "(6.5)". "# Fluency & Coherence" with a "Band:" line and a "Reason:" line. "# Lexical Resource" with "Band:" and "Reason:". "# Grammar Range & Accuracy" with "Band:" and "Reason:". "# Pronunciation" with "Band:" and "Reason:". "# Major Errors" — list every noticeable error, under four bullet sub-lists headed "## Grammar", "## Vocabulary", "## Pronunciation", "## Fluency" (each item a "-" bullet; write "- None noted." if a category has no errors). "# Band Improvement Advice" — tell the candidate exactly what prevents them from reaching the next band according to the official descriptors, with practical, specific advice (avoid generic advice like "practice more"). "# Estimate" with "Current Level:", "Likely Range:", and "Confidence:" lines.'
+          +' Every single "Band:" line, including Pronunciation, MUST contain a numeric IELTS band score (0-9, in 0.5 steps) and nothing else on that line — NEVER write "Estimated" or any other word in place of a number. If no audio was provided, still give your best numeric estimate on the "Band:" line, and put the caveat that it is estimated from transcript cues only inside the "Reason:" line instead.',
         userContent:'IELTS Speaking '+part+'\nQ: '+question+'\nAnswer: '+transcript,
         maxTokens:2200
       })
@@ -1567,12 +1667,7 @@ async function gradeAnswer(transcript){
     }
     const data=await res.json();
     const md=(typeof data.text==='string'?data.text:JSON.stringify(data.text||'')).trim();
-    const band=extractOverallBand(md);
-    box.innerHTML=`
-      <div class="grade-band">Band ${band||'?'}</div>
-      <div class="grade-markdown">${mdToHtml(md)}</div>
-    `;
-    document.getElementById('recStatusTxt').textContent='Đã chấm xong';
+    renderGradeResult(md);
   }catch(err){
     box.innerHTML=aiErrorHtml(err);
     document.getElementById('recStatusTxt').textContent='Lỗi';
@@ -2137,7 +2232,7 @@ function adminLogin(){
   const pass=document.getElementById('adminPass').value.trim();
   const errEl=document.getElementById('adminErr');
   if(!user.toUpperCase().endsWith('TEACHER')){errEl.style.display='';errEl.textContent='Tài khoản phải có đuôi TEACHER';return}
-  if(pass!==ADMIN_PASS){errEl.style.display='';errEl.textContent='Mật khẩu không đúng (hint: ielts2025)';return}
+  if(pass!==ADMIN_PASS){errEl.style.display='';errEl.textContent='Mật khẩu không đúng';return}
   adminUser=user;
   errEl.style.display='none';
   showAdminPanel();updateAdminStats();
