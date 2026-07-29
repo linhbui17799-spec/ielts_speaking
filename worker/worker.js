@@ -28,17 +28,30 @@ export default {
     if (system) messages.push({ role: 'system', content: system });
     messages.push({ role: 'user', content: userContent });
 
-    let result;
-    try {
-      result = await env.AI.run(WORKERS_AI_MODEL, {
-        messages,
-        max_tokens: maxTokens || 800,
-        temperature: 0.4,
-        repetition_penalty: 1.3,
-        frequency_penalty: 0.4,
-      });
-    } catch (e) {
-      return json({ error: 'Workers AI error: ' + (e?.message || String(e)) }, 502);
+    // Workers AI intermittently rejects otherwise-valid requests with a
+    // garbled schema error (e.g. "oneOf ... 'string' not in 'object'")
+    // under shared-capacity load — retrying the identical call a couple of
+    // times here (cheap: same edge, no client round-trip) clears most of
+    // these transient failures before the client's own retry loop kicks in.
+    const attempts = 3;
+    let result, lastErr;
+    for (let i = 0; i < attempts; i++) {
+      try {
+        result = await env.AI.run(WORKERS_AI_MODEL, {
+          messages,
+          max_tokens: maxTokens || 800,
+          temperature: 0.4,
+          repetition_penalty: 1.3,
+          frequency_penalty: 0.4,
+        });
+        lastErr = null;
+        break;
+      } catch (e) {
+        lastErr = e;
+      }
+    }
+    if (lastErr) {
+      return json({ error: 'Workers AI error: ' + (lastErr?.message || String(lastErr)) }, 502);
     }
 
     const text = result?.response || '{}';

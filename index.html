@@ -1537,7 +1537,8 @@ function mdToHtml(md){
     if(/^-{3,}$/.test(line)){closeList();continue;}
     if((m=line.match(/^[-•\*]\s+(.*)/))){if(!inList){html+='<ul class="grade-list">';inList=true;}html+='<li>'+inline(m[1])+'</li>';continue;}
     if((m=line.match(/^Band\s*:\s*(.*)/i))){closeList();html+='<div class="grade-band-pill">Band '+inline(m[1]||'?')+'</div>';continue;}
-    if((m=line.match(/^(Reason|Question|Candidate's Response|Relevance)\s*:\s*(.*)/i))){closeList();html+='<div class="grade-item"><strong>'+inline(m[1])+':</strong> '+inline(m[2])+'</div>';continue;}
+    if((m=line.match(/^Correction\s*:\s*(.*)/i))){closeList();html+='<div class="grade-item ok"><strong>Correction:</strong> '+inline(m[1])+'</div>';continue;}
+    if((m=line.match(/^(Reason|Question|Candidate's Response|Relevance|Original|Current Level|Likely Range|Confidence)\s*:\s*(.*)/i))){closeList();html+='<div class="grade-item"><strong>'+inline(m[1])+':</strong> '+inline(m[2])+'</div>';continue;}
     closeList();html+='<div class="grade-item">'+inline(line)+'</div>';
   }
   closeList();
@@ -1588,13 +1589,29 @@ function looksLikeGibberish(text){
 function looksTooShortToGrade(text){
   return text.trim().split(/\s+/).filter(Boolean).length<4;
 }
-function lowContentReportMd(band,reason,pronunciationReason){
-  const r='Reason: '+reason;
+// recognition.lang is fixed to 'en-US' (see recStart), so a genuine Web Speech
+// transcript never contains Vietnamese diacritics — if the box has them, the
+// text was typed/pasted in manually rather than spoken, and isn't a gradable
+// English response. The grading model reliably fails to produce a parseable
+// IELTS assessment for non-English input (it has nothing to score against the
+// English band descriptors), so detect this deterministically and skip the
+// API call entirely instead of burning retries on a call that can't succeed.
+function looksNonEnglish(text){
+  return /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(text);
+}
+// Official IELTS band descriptor wording quoted as justification — see
+// https://www.ielts.org speaking band descriptors. Cited once (in Fluency &
+// Coherence) rather than repeated verbatim in every criterion, since the
+// same quoted sentence copy-pasted three times reads like a rendering bug.
+const LOW_CONTENT_BAND_QUOTES={1:'no communication possible, no rateable language',2:'can produce almost no rateable language except isolated words'};
+function lowContentReportMd(band,rootCause,pronunciationReason){
   const bandStr=band.toFixed(1);
+  const quote=LOW_CONTENT_BAND_QUOTES[band];
+  const cite=quote?' This is consistent with the official Band '+band+' descriptor ("'+quote+'").':'';
   return '# Overall Band\n('+bandStr+')\n\n'
-    +'# Fluency & Coherence\nBand: '+band+'\n'+r+'\n\n'
-    +'# Lexical Resource\nBand: '+band+'\n'+r+'\n\n'
-    +'# Grammar Range & Accuracy\nBand: '+band+'\n'+r+'\n\n'
+    +'# Fluency & Coherence\nBand: '+band+'\nReason: '+rootCause+' There is not enough language to assess fluency, coherence, or idea development.'+cite+'\n\n'
+    +'# Lexical Resource\nBand: '+band+'\nReason: '+rootCause+' There is not enough language to judge vocabulary range, word choice, or accuracy.\n\n'
+    +'# Grammar Range & Accuracy\nBand: '+band+'\nReason: '+rootCause+' There is not enough language to assess sentence structure or grammatical accuracy.\n\n'
     +'# Pronunciation\nBand: '+band+'\nReason: '+pronunciationReason+'\n\n'
     +'# Major Errors\n## Grammar\n- None noted — too little language was produced to assess.\n## Vocabulary\n- None noted — too little language was produced to assess.\n## Pronunciation\n- None noted — too little language was produced to assess.\n## Fluency\n- The response does not contain enough language to demonstrate fluency or coherence.\n\n'
     +'# Band Improvement Advice\nGive a fuller spoken answer in English that directly addresses the examiner\'s question with at least one complete, developed sentence — this is required before a higher band can be given.\n\n'
@@ -1611,14 +1628,19 @@ function reconcileOverallBand(md){
     ?md.replace(/((?:Final\s+)?Overall\s*Band\s*:?\s*\(?\s*)\d+(?:\.\d+)?(\s*\)?)/i,'$1'+computedStr+'$2')
     :md;
 }
+// The free Workers AI model occasionally collapses into a near-empty or
+// malformed reply (e.g. just a stray quote) instead of a real assessment,
+// especially for very short/garbled input, but a retry with the same prompt
+// often succeeds since generation is stochastic — so callers can use this to
+// decide whether to retry before giving up and showing an error.
+function isGradeMdValid(rawMd){
+  const md=reconcileOverallBand(rawMd);
+  return !!(extractOverallBand(md)&&extractCriterionBands(md));
+}
 function renderGradeResult(rawMd){
   const box=document.getElementById('gradeBox');
   const md=reconcileOverallBand(rawMd);
   const band=extractOverallBand(md);
-  // The free Workers AI model occasionally collapses into a near-empty or
-  // malformed reply (e.g. just a stray quote) instead of a real assessment,
-  // especially for very short/garbled input. Detect that instead of
-  // rendering a broken "Band ?" panel with unreadable leftover text.
   if(!band||!extractCriterionBands(md)){
     box.innerHTML=aiErrorHtml(new Error('AI không trả về được bài chấm hợp lệ (có thể do câu trả lời quá ngắn hoặc không rõ nghĩa). Vui lòng ghi âm lại với nội dung rõ ràng hơn và thử lại.'));
     document.getElementById('recStatusTxt').textContent='Lỗi';
@@ -1638,38 +1660,56 @@ async function gradeAnswer(transcript){
   const part='Part '+currentPart;
   const box=document.getElementById('gradeBox');
   box.style.display='block';
+  if(looksNonEnglish(transcript)){
+    renderGradeResult(lowContentReportMd(1,'The response is written in Vietnamese rather than English, so it contains no rateable English language. Please answer in English.','No English speech was produced, so pronunciation cannot be assessed.'));
+    return;
+  }
   if(looksLikeGibberish(transcript)){
-    renderGradeResult(lowContentReportMd(1,'The response contains no recognizable English words, so it cannot be understood or evaluated as language, per the official Band 1 descriptor ("no communication possible, no rateable language").','No rateable language was produced, so pronunciation cannot be assessed.'));
+    renderGradeResult(lowContentReportMd(1,'The response contains no recognizable English words, so it cannot be understood or evaluated as language.','No rateable language was produced, so pronunciation cannot be assessed.'));
     return;
   }
   if(looksTooShortToGrade(transcript)){
-    renderGradeResult(lowContentReportMd(2,'The response consists of only a few isolated words and does not develop an answer to the question, per the Band 2 descriptor ("can produce almost no rateable language except isolated words").','The response is too brief to assess pronunciation.'));
+    renderGradeResult(lowContentReportMd(2,'The response consists of only a few isolated words and does not develop an answer to the question.','The response is too brief to assess pronunciation.'));
     return;
   }
-  box.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-dim)"><span style="display:inline-block;animation:spin .8s linear infinite">⏳</span> AI đang chấm bài...</div>';
-  try{
-    const res=await fetch(AI_PROXY_URL,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        system:'You are a certified IELTS Speaking examiner with over 20 years of experience. Assess a candidate\'s IELTS Speaking performance strictly according to the official IELTS Speaking Band Descriptors (Band 0-9). Never inflate or deflate scores. You must behave exactly like an IELTS examiner.'
-          +' Scoring criteria — evaluate ONLY using these four official criteria, each weighted equally (25%). 1. Fluency and Coherence: speaking speed, hesitation, self-correction, repetition, ability to develop ideas, logical organization, linking devices, discourse markers. 2. Lexical Resource: vocabulary range, topic vocabulary, paraphrasing ability, collocations, idiomatic language, precision, incorrect word choice. 3. Grammatical Range and Accuracy: sentence variety, complex structures, subordinate clauses, tense control, articles, prepositions, subject-verb agreement, error frequency, whether errors reduce clarity. 4. Pronunciation: intelligibility, word stress, sentence stress, connected speech, rhythm, intonation, consonants, vowels, pronunciation errors — judge this on the criteria above, never on accent; if only a transcript is provided (no audio), clearly note that Pronunciation is only an estimate inferred from transcript cues.'
-          +' Important: do NOT reward memorised answers. Do NOT reward long answers if they contain many grammatical mistakes. Do NOT reward advanced vocabulary if used incorrectly. Minor mistakes should not significantly reduce the score. Repeated grammar mistakes should reduce the score. Repeated pronunciation problems should reduce the score. Band 9 should only be awarded if the performance fully meets Band 9 descriptors in every criterion. As part of Fluency & Coherence, briefly note whether the response actually addresses the examiner\'s question; a response that ignores the question or goes off-topic must lower this score, with the off-topic content quoted or paraphrased as evidence — a clear, on-topic answer to a short question must not be penalized merely for brevity. Calculate the Overall Band as the average of the four criterion bands; if the average falls between two official bands, award the LOWER band unless the descriptors of the higher band are clearly and fully met in ALL four criteria — never round up simply because the decimal is closer to the next band. Every score must be justified using specific evidence quoted or paraphrased from the response.'
-          +' Return ONLY the following structure, in Markdown, exactly in this order: "# Overall Band" with the score alone on the next line in parentheses, e.g. "(6.5)". "# Fluency & Coherence" with a "Band:" line and a "Reason:" line. "# Lexical Resource" with "Band:" and "Reason:". "# Grammar Range & Accuracy" with "Band:" and "Reason:". "# Pronunciation" with "Band:" and "Reason:". "# Major Errors" — list every noticeable error, under four bullet sub-lists headed "## Grammar", "## Vocabulary", "## Pronunciation", "## Fluency" (each item a "-" bullet; write "- None noted." if a category has no errors). "# Band Improvement Advice" — tell the candidate exactly what prevents them from reaching the next band according to the official descriptors, with practical, specific advice (avoid generic advice like "practice more"). "# Estimate" with "Current Level:", "Likely Range:", and "Confidence:" lines.'
-          +' Every single "Band:" line, including Pronunciation, MUST contain a numeric IELTS band score (0-9, in 0.5 steps) and nothing else on that line — NEVER write "Estimated" or any other word in place of a number. If no audio was provided, still give your best numeric estimate on the "Band:" line, and put the caveat that it is estimated from transcript cues only inside the "Reason:" line instead.',
-        userContent:'IELTS Speaking '+part+'\nQ: '+question+'\nAnswer: '+transcript,
-        maxTokens:2200
-      })
-    });
-    if(!res.ok){
-      const t=await res.text().catch(()=>'');
-      throw new Error('API_ERROR: '+res.status+' '+t.slice(0,200));
+  const system=`You are an IELTS Speaking examiner. Score strictly against the official Band Descriptors (0-9), never inflate or deflate. Part 1 answers are ~2-3 sentences; Part 2 ~180-220 words on a cue card; Part 3 ~90-110 words of opinion/justification — don't penalize natural brevity, but reduce Fluency & Coherence if a Part 2 answer is much shorter than expected. Only give Band 1 if the response is empty, unintelligible, or has no English; otherwise score 2-9. The transcript may have ASR typos (than/then, missing punctuation) — infer intent, only penalize genuine speaker errors.
+
+Score 4 criteria equally: Fluency & Coherence (first check whether the response actually answers the question asked — if it ignores the question or talks about something else entirely, quote the off-topic content as evidence and sharply lower this score and the Overall Band regardless of how fluent or grammatical it is), Lexical Resource, Grammatical Range & Accuracy, Pronunciation (estimate conservatively if no audio, flag lower confidence, never judge accent). Don't reward memorised or error-filled answers. Overall Band = average of the 4, floored to the lower band unless all 4 clearly meet the higher one. Justify scores with evidence.
+
+Output in Markdown, exactly in order: "# Overall Band" then "(x.x)" on next line; "# Fluency & Coherence", "# Lexical Resource", "# Grammar Range & Accuracy", "# Pronunciation" each with "Band:" and "Reason:" lines; "# Major Errors" with "## Grammar" "## Vocabulary" "## Pronunciation" "## Fluency" bullets ("- None noted." if empty); "# Error Corrections" with "Original:"/"Correction:"/"Reason:" per mistake (or "Original: None."); "# Model Answer" rewriting the answer at Band 7.5-8.0; "# Band Improvement Advice"; "# Estimate" with "Current Level:"/"Likely Range:"/"Confidence:". Every "Band:" line must have the number (0-9, .5 steps) on the same line, nothing else, never on its own line.`;
+  // The free Workers AI model (a small 3B instruct model) sometimes ignores the
+  // required output structure on a given attempt, but generation is stochastic
+  // (temperature 0.4), so a same-prompt retry frequently succeeds. Retry a few
+  // times before surfacing an error, instead of failing on the first bad reply.
+  const maxAttempts=3;
+  let lastMd=null,lastErr=null;
+  for(let attempt=1;attempt<=maxAttempts;attempt++){
+    box.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-dim)"><span style="display:inline-block;animation:spin .8s linear infinite">⏳</span> AI đang chấm bài'+(attempt>1?' (thử lại lần '+attempt+')':'')+'...</div>';
+    try{
+      const res=await fetch(AI_PROXY_URL,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          system,
+          userContent:'IELTS Speaking '+part+'\nQ: '+question+'\nAnswer: '+transcript,
+          maxTokens:2600
+        })
+      });
+      if(!res.ok){
+        const t=await res.text().catch(()=>'');
+        throw new Error('API_ERROR: '+res.status+' '+t.slice(0,200));
+      }
+      const data=await res.json();
+      const md=(typeof data.text==='string'?data.text:JSON.stringify(data.text||'')).trim();
+      if(isGradeMdValid(md)){renderGradeResult(md);return;}
+      lastMd=md;lastErr=null;
+    }catch(err){
+      lastErr=err;lastMd=null;
     }
-    const data=await res.json();
-    const md=(typeof data.text==='string'?data.text:JSON.stringify(data.text||'')).trim();
-    renderGradeResult(md);
-  }catch(err){
-    box.innerHTML=aiErrorHtml(err);
+  }
+  if(lastMd){renderGradeResult(lastMd);}
+  else{
+    box.innerHTML=aiErrorHtml(lastErr);
     document.getElementById('recStatusTxt').textContent='Lỗi';
   }
 }
